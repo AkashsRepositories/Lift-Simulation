@@ -39,7 +39,7 @@ document.querySelector("button#submit").addEventListener("click", (event) => {
 function handleLiftCall(event){
     const calledFloor = event?.path[2];
     const floorId = calledFloor.id;
-    if(floorLiftMap.get(floorId) != null){
+    if(floorLiftMap.get(floorId) !== null){
         const mappedLiftId = floorLiftMap.get(floorId);
         if(liftsAvailabilitiy.get(mappedLiftId)){
             liftsAvailabilitiy.set(mappedLiftId, false);
@@ -70,15 +70,15 @@ function moveLift(floorId, liftId){
     }
 
     liftsAvailabilitiy.set(liftId, false);
+    floorLiftMap.set(floorId, liftId);
+
     //unmap previous floor-lift mapping with current lift
     floorLiftMap.forEach((value, key) => {
-        if(value === liftId){
+        if(key !== floorId && value === liftId){
             floorLiftMap.set(key, null);
             console.log(floorLiftMap);
         }
     });
-
-    floorLiftMap.set(floorId, liftId);
 
     const floor = document.querySelector(`#${floorId}`);
     const lift = document.querySelector(`#${liftId}`);
