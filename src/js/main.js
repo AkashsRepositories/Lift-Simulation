@@ -60,6 +60,15 @@ function handleLiftCall(event){
 }   
 
 function moveLift(floorId, liftId){
+    if(floorLiftMap.get(floorId) !== null){
+        const mappedLiftId = floorLiftMap.get(floorId);
+        if(liftsAvailabilitiy.get(mappedLiftId)){
+            liftsAvailabilitiy.set(mappedLiftId, false);
+            openAndCloseDoors(floorId, mappedLiftId);
+        }
+        return;
+    }
+
     liftsAvailabilitiy.set(liftId, false);
     //unmap previous floor-lift mapping with current lift
     floorLiftMap.forEach((value, key) => {
@@ -68,6 +77,8 @@ function moveLift(floorId, liftId){
             console.log(floorLiftMap);
         }
     });
+
+    floorLiftMap.set(floorId, liftId);
 
     const floor = document.querySelector(`#${floorId}`);
     const lift = document.querySelector(`#${liftId}`);
@@ -79,7 +90,7 @@ function moveLift(floorId, liftId){
     const transitionDuration = diff*2;
 
     lift.style.transform = `translateY(-${floorNumber*floorHeight}px)`;
-    lift.style.transition  = `transform ${transitionDuration}s`;
+    lift.style.transition  = `all ${transitionDuration}s`;
     setTimeout(() => {
         openAndCloseDoors(floorId, liftId);
     }, transitionDuration * 1000);  
@@ -88,7 +99,6 @@ function moveLift(floorId, liftId){
 }
 
 function openAndCloseDoors(floorId, liftId) {
-    floorLiftMap.set(floorId, liftId);
 
     const lift = document.querySelector(`#${liftId}`);
     const leftDoor = lift.querySelector(".left-door");
@@ -100,12 +110,11 @@ function openAndCloseDoors(floorId, liftId) {
         rightDoor.classList.remove("right-move"); 
         //this lift will be free after 2500ms
         setTimeout(() => {
+            liftsAvailabilitiy.set(liftId, true);
             if(pendingCalls.length > 0){
                 const floorIdFromRemainingCalls = pendingCalls[0];
                 pendingCalls.shift();
                 moveLift(floorIdFromRemainingCalls, liftId);
-            } else {
-                liftsAvailabilitiy.set(liftId, true);
             }
         }, 2500);
     }, 2500);
